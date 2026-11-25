@@ -1,1 +1,12 @@
-{"applinks":{"details":[{"appIDs":["Z3ERKVNL68.com.carbonellco.dishlog"],"components":[{"/":"/thyme/*"}]}]}}
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["Z3ERKVNL68.com.carbonellco.dishlog"],
+        "components": [
+          { "/": "/thyme/*", "comment": "Thyme Again recommendation links" }
+        ]
+      }
+    ]
+  }
+}
