@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<title>Thyme Again</title>
+<style>
+  :root { --paper:#F6F3EC; --card:#FCFBF7; --line:#E4DED2; --ink:#1E1C19; --muted:#6B665D; --brand:#5E3714; }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper:#1A1814; --card:#242119; --line:#3A352B; --ink:#F3EEE4; --muted:#A39C8F; --brand:#D9B27C; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.4 -apple-system, system-ui, sans-serif; }
+  main { max-width:480px; margin:0 auto; padding:28px 20px 48px; }
+  .mark { font-size:12px; font-weight:200; letter-spacing:.25em; text-transform:uppercase; color:var(--brand); }
+  .eyebrow { margin-top:32px; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--brand); }
+  h1 { margin:6px 0 4px; font:500 32px/1.15 ui-serif, "New York", Georgia, serif; }
+  .muted { color:var(--muted); font-size:14px; }
+  .label { margin:24px 0 8px; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; }
+  .card p { margin:0; padding:14px 16px; }
+  .card p + p { border-top:1px solid var(--line); }
+  .btn { display:block; margin-top:12px; padding:15px; text-align:center; text-decoration:none; font-weight:600; border-radius:16px; }
+  .primary { background:var(--ink); color:var(--paper); }
+  .secondary { border:1px solid var(--line); color:var(--ink); background:var(--card); }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <div class="mark">Thyme Again</div>
+
+  <section id="rec" class="hidden">
+    <div class="eyebrow" id="from"></div>
+    <h1 id="name"></h1>
+    <div class="muted" id="where"></div>
+    <div id="dishesBlock" class="hidden">
+      <div class="label">Order</div>
+      <div class="card" id="dishes"></div>
+    </div>
+    <div id="noteBlock" class="hidden">
+      <div class="label">Their note</div>
+      <div class="card"><p id="note"></p></div>
+    </div>
+    <a class="btn secondary" id="directions" href="#">Get directions</a>
+  </section>
+
+  <section id="plain" class="hidden">
+    <h1>Thyme Again</h1>
+    <p class="muted">A private log of the places you loved, want to try, and should skip.</p>
+  </section>
+
+  <div class="label">Save it in the app</div>
+  <p class="muted" style="margin-top:0">Thyme Again for iPhone keeps recommendations like this one next to the places you've loved. If you have the app, open this link on your iPhone and it opens there.</p>
+  <a class="btn primary" id="getApp" href="#">Get Thyme Again</a>
+</main>
+
+<script>
+  // Set this to the TestFlight public link now, and the App Store link later.
+  var GET_APP_URL = "";
+
+  var get = document.getElementById("getApp");
+  if (GET_APP_URL) { get.href = GET_APP_URL; } else { get.classList.add("hidden"); }
+
+  function show(id) { document.getElementById(id).classList.remove("hidden"); }
+  function text(id, value) { document.getElementById(id).textContent = value; }
+
+  function decode(fragment) {
+    var b64 = fragment.replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) { b64 += "="; }
+    var bytes = Uint8Array.from(atob(b64), function (c) { return c.charCodeAt(0); });
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }
+
+  var rec = null;
+  try { rec = decode(location.hash.slice(1)); } catch (e) { rec = null; }
+
+  if (rec && rec.n) {
+    show("rec");
+    text("from", rec.f ? rec.f + " recommends" : "Recommended to you");
+    text("name", rec.n);
+    text("where", [rec.a, rec.c].filter(Boolean).join(", "));
+    if (rec.d && rec.d.length) {
+      show("dishesBlock");
+      var box = document.getElementById("dishes");
+      rec.d.forEach(function (dish) {
+        var p = document.createElement("p");
+        p.textContent = dish;
+        box.appendChild(p);
+      });
+    }
+    if (rec.t) { show("noteBlock"); text("note", rec.t); }
+    var q = encodeURIComponent(rec.n);
+    var ll = (rec.la || rec.lo) ? "&ll=" + rec.la + "," + rec.lo : "";
+    document.getElementById("directions").href = "https://maps.apple.com/?q=" + q + ll;
+  } else {
+    show("plain");
+  }
+</script>
+</body>
+</html>
